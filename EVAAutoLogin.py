@@ -8,23 +8,18 @@ from PIL import Image, ImageTk
 from tkinter import messagebox
 import os
 
-# Esta funcion devuelve un string
-# un lista [usuario,contrasena] del archivo datos.txt
+# Esta funcion devuelve una un lista [usuario,contrasena] del archivo datos.txt
 def ObtenerDatos():
      f=open("datos.txt")
      l =f.read()
      f.close()
      return l.split(":")
 
-# Esta funcion comprueba si el archivo
-# datos.txt esta vacío 
-# retorna booleano
+# Esta funcion comprueba si el archivo datos.txt esta vacío 
 def NoHayDatos():
     return os.stat('datos.txt').st_size == 0
 
-# Este es el script que usando la libreria 
-# Selenium se conecta con Firefox a traves
-# de geckodriver.exe 
+# Este es el script que usando la libreria Selenium se conecta con Firefox a traves de geckodriver.exe 
 def scriptCompleto(usuario,contrasena):
     driver = webdriver.Firefox(executable_path="geckodriver.exe")
     driver.get('https://eva.unapec.edu.do/moodle/login/index.php')
@@ -44,9 +39,7 @@ def scriptCompleto(usuario,contrasena):
     botonFinal = driver.find_element_by_id('idBtn_Back')
     botonFinal.click()
 
-
-# Esta función ejecuta una nueva pestaña
-# para  el registro
+# Esta función ejecuta una nueva pestaña para el registro
 def Registro():
     #Habra que cambiar esto para añadir un frame y adaptar el diseño
     registrov = Toplevel(mainv)
@@ -90,10 +83,18 @@ def Registro():
     contra.pack()
     
     Button(registrov,text = "Login",font=("Helvetica", 22),command= lambda: RegistrarUsuario(correo.get(),contra.get())).pack()    
-          
+#Si datos.txt esta vacío, ejecuta la vista de registro
+#Sino, cambia el estado del boton
 
-#Aqui se genera la pestaña principal
-#Habra que cambiar esto para añadir un frame y adaptar el diseño
+def NecesitaRegistro():   
+    if(NoHayDatos()):
+        Registro() 
+    else:
+        boton['state'] =NORMAL        
+
+                                        #Aqui se genera la pestaña principal
+
+
 mainv = Tk()
 mainv.title("Eva AutoLogin")
 mainv.geometry('700x200')
@@ -105,15 +106,13 @@ render = ImageTk.PhotoImage(load)
 img = Label(mainv, image=render)
 img.image = render
 img.place(x=0, y=0)
+
+#Aqui se crea el boton que envia los datos registrados del usuarios a la funcion del Script
 boton = Button(mainv,text = "Abrir Eva",state=DISABLED,font=("Helvetica", 22),command= lambda : scriptCompleto(ObtenerDatos()[0],ObtenerDatos()[1]))
+
 boton.pack()
 
-
-#Si datos.txt esta vacío, ejecuta la vista de registro
-#Sino, cambia el estado del boton
-if(NoHayDatos()):
-    Registro() 
-else:
-    boton['state'] =NORMAL
+#Se llama a esta funcion para verificar si hace falta registrar usuario
+NecesitaRegistro()
 
 mainv.mainloop()
